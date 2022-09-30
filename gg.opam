@@ -21,9 +21,19 @@ doc: "https://erratique.ch/software/gg/doc/"
 bug-reports: "https://github.com/dbuenzli/gg/issues"
 depends: [
   "ocaml" {>= "4.08.0"}
-  "ocamlfind" {build}
-  "ocamlbuild" {build}
-  "topkg" {build & >= "1.0.3"}
+  "dune"
 ]
-build: ["ocaml" "pkg/pkg.ml" "build" "--dev-pkg" "%{dev}%"]
+build: [
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+  ]
+]
 dev-repo: "git+https://erratique.ch/repos/gg.git"

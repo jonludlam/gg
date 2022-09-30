@@ -5,7 +5,7 @@
 
 let str = Format.asprintf
 let pp = Format.fprintf
-let err_unsupported_by = str "unsupported bigarray kind"
+let _err_unsupported_by = str "unsupported bigarray kind"
 let err_not_nan = "not a NaN"
 let err_empty_box = "empty box"
 let err_packed_sf = "packed sample format"
@@ -30,7 +30,7 @@ let err_buffer_data data k =
 let err_buffer_kind =
   str "bigarray kind can't be represented by a Gg.Ba.scalar_type"
 
-let pp_pad ppf len = for i = 1 to len do Format.pp_print_space ppf () done
+let pp_pad ppf len = for _i = 1 to len do Format.pp_print_space ppf () done
 let pp_buf buf ppf fmt =
   let flush ppf =
     Format.pp_print_flush ppf ();
@@ -1893,11 +1893,11 @@ module M4 = struct
             @[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@,\
             @[<1>|%a%s@ %a%s@ %a%s@ %a%s|@]@]"
       pp_pad (max0 - e00l) e00 pp_pad (max1 - e01l) e01
-      pp_pad (max2 - e02l) e02 pp_pad (max3 - e03l) e03 (**)
+      pp_pad (max2 - e02l) e02 pp_pad (max3 - e03l) e03 (* *)
       pp_pad (max0 - e10l) e10 pp_pad (max1 - e11l) e11
-      pp_pad (max2 - e12l) e12 pp_pad (max3 - e13l) e13 (**)
+      pp_pad (max2 - e12l) e12 pp_pad (max3 - e13l) e13 (* *)
       pp_pad (max0 - e20l) e20 pp_pad (max1 - e21l) e21
-      pp_pad (max2 - e22l) e22 pp_pad (max3 - e23l) e23 (**)
+      pp_pad (max2 - e22l) e22 pp_pad (max3 - e23l) e23 (* *)
       pp_pad (max0 - e30l) e30 pp_pad (max1 - e31l) e31
       pp_pad (max2 - e32l) e32 pp_pad (max3 - e33l) e33
 
@@ -2111,8 +2111,8 @@ module Box1 = struct
       not ((r < l') || (r' < l))
 
   let subset b b' = match b, b' with
-  | b, E -> false
-  | E, b -> true
+  | _b, E -> false
+  | E, _b -> true
   | R (o, s), R (o', s') -> (o' <= o) && (o +. s <= o' +. s')
 
   let mem p = function
@@ -2322,8 +2322,8 @@ module Box2 = struct
       true
 
   let subset b b' = match b, b' with
-  | b, E -> false
-  | E, b -> true
+  | _b, E -> false
+  | E, _b -> true
   | R (o, s), R (o', s') ->
       (o'.x <= o.x) &&
       (o'.y <= o.y) &&
@@ -2615,8 +2615,8 @@ module Box3 = struct
       true
 
   let subset b b' = match b, b' with
-  | b, E -> false
-  | E, b -> true
+  | _b, E -> false
+  | E, _b -> true
   | R (o, s), R (o', s') ->
       (o'.x <= o.x) &&
       (o'.y <= o.y) &&
@@ -2739,16 +2739,16 @@ module Color = struct
     v r g b c.V4t.w
 
   let v_srgb ?(a = 1.) r' g' b' =  (* N.B. code duplication with of_srgb. *)
-    let r = V4t.(if r' <= c0 then c1 *. r' else (c3 *. (r' +. c2)) ** c4) in
-    let g = V4t.(if g' <= c0 then c1 *. g' else (c3 *. (g' +. c2)) ** c4) in
-    let b = V4t.(if b' <= c0 then c1 *. b' else (c3 *. (b' +. c2)) ** c4) in
+    let r = (if r' <= c0 then c1 *. r' else (c3 *. (r' +. c2)) ** c4) in
+    let g = (if g' <= c0 then c1 *. g' else (c3 *. (g' +. c2)) ** c4) in
+    let b = (if b' <= c0 then c1 *. b' else (c3 *. (b' +. c2)) ** c4) in
     v r g b a
 
   let v_srgbi ?a r g b =
     v_srgb ?a (float r /. 255.) (float g /. 255.) (float b /. 255.)
 
   let gray ?(a = 1.) l' =           (* N.B. code duplication with of_srgb. *)
-    let l = V4t.(if l' <= c0 then c1 *. l' else (c3 *. (l' +. c2)) ** c4) in
+    let l = (if l' <= c0 then c1 *. l' else (c3 *. (l' +. c2)) ** c4) in
     v l l l a
 
   let c0 = 0.0031308
@@ -3133,6 +3133,7 @@ module Ba = struct
 
   let of_bytes (type a) (type b) ?(be = false) (k : (a, b) ba_scalar_type) s :
     (a, b) bigarray =
+    ignore be;
     match k with
     | Int8 ->
         let b = create Int8 (String.length s) in
@@ -3168,7 +3169,7 @@ module Ba = struct
       i := !i + stride
     in
     pp ppf "@[<hov>%a" pp_group ();
-    for k = 1 to count - 1 do pp ppf "@ %a" pp_group (); done;
+    for _k = 1 to count - 1 do pp ppf "@ %a" pp_group (); done;
     pp ppf "@]"
 
   (* Get *)
@@ -3278,7 +3279,7 @@ module Raster = struct
     let scalar_type sf = sf.scalar_type
     let pack sf = sf.pack
     let dim sf = match sf.semantics with
-    | `Other (label, dim) -> dim
+    | `Other (_label, dim) -> dim
     | `Color (profile, alpha) ->
         Color.profile_dim profile + (if alpha then 1 else 0)
 
@@ -3401,7 +3402,7 @@ module Raster = struct
     if Size3.h r.size > 1. then 2 else 1
 
   let kind r = match dim r with
-  | 1 -> `D1 | 2 -> `D2 | 3 -> `D3 | n -> assert false
+  | 1 -> `D1 | 2 -> `D2 | 3 -> `D3 | _n -> assert false
 
   let scalar_strides r =
     if r.sf.Sample.pack <> None then invalid_arg err_packed_sf;
